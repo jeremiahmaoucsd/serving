@@ -1,85 +1,74 @@
-/* Copyright 2020 Google Inc. All Rights Reserved.
+/*add copyright information?*/
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+// APIs for the HTTP client.
 
-    http://www.apache.org/licenses/LICENSE-2.0
+#ifndef TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
+#define TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
+#include <cassert>
 
-#ifndef THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
-#define THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
+#include <functional>
+#include <memory>
+#include <vector>
 
-#include "tensorflow_serving/util/net_http/server/public/httpserver_interface.h"
-#include "tensorflow_serving/util/net_http/server/public/response_code_enum.h"
+#include "absl/strings/string_view.h"
+#include "absl/time/time.h"
 
-// API for the HTTP Client
-// NOTE: This API is not yet finalized, and should be considered experimental.
+#include "tensorflow_serving/util/net_http/client/public/client_request_interface.h"
 
-namespace tensorflow {
-namespace serving {
-namespace net_http {
 
-// Data to be copied
-struct ClientRequest {
-  typedef std::pair<absl::string_view, absl::string_view> HeaderKeyValue;
+class EventExecutor {
+ public:
+  virtual ~EventExecutor() = default;
 
-  absl::string_view uri_path;
-  absl::string_view method;  // must be in upper-case
-  std::vector<HeaderKeyValue> headers;
-  absl::string_view body;
+  EventExecutor(const EventExecutor& other) = delete;
+  EventExecutor& operator=(const EventExecutor& other) = delete;
+
+  // Schedule the specified 'fn' for execution in this executor.
+  // Must be non-blocking
+  virtual void Schedule(std::function<void()> fn) = 0;
+
+ protected:
+  EventExecutor() = default;
 };
 
-// Caller allocates the data for output
-struct ClientResponse {
-  typedef std::pair<std::string, std::string> HeaderKeyValue;
-
-  HTTPStatusCode status = HTTPStatusCode::UNDEFINED;
-  std::vector<HeaderKeyValue> headers;
-  std::string body;
-
-  std::function<void()> done;  // callback
-};
-
-// This interface class specifies the API contract for the HTTP client.
 class HTTPClientInterface {
  public:
+  virtual ~HTTPClientInterface() = default;
+
   HTTPClientInterface(const HTTPClientInterface& other) = delete;
   HTTPClientInterface& operator=(const HTTPClientInterface& other) = delete;
 
-  virtual ~HTTPClientInterface() = default;
+  virtual bool Connect(absl::string_view host, int port) = 0;
 
-  // Terminates the connection.
+  virtual bool Connect(absl::string_view uri) = 0;
+  
+  virtual bool is_connected() const = 0;
+  
+  virtual bool SendRequest(ClientRequestInterface& request, bool asynchronous) = 0;
+
+  // Starts the connection termination, and returns immediately.
   virtual void Terminate() = 0;
 
-  // Sends a request and blocks the caller till a response is received
-  // or any error has happened.
-  // Returns false if any error.
-  virtual bool BlockingSendRequest(const ClientRequest& request,
-                                   ClientResponse* response) = 0;
+  // Returns true if Terminate() has been called.
+  virtual bool is_terminating() const = 0;
 
-  // Sends a request and returns immediately. The response will be handled
-  // asynchronously via the response->done callback.
-  // Returns false if any error in sending the request, or if the executor
-  // has not been configured.
-  virtual bool SendRequest(const ClientRequest& request,
-                           ClientResponse* response) = 0;
+  // Blocks the calling thread until the client is terminated and safe
+  // to destroy.
+  virtual void WaitForTermination() = 0;
+
+  // Blocks the calling thread until the server is terminated and safe
+  // to destroy, or until the specified timeout elapses.  Returns true
+  // if safe termination completed within the timeout, and false otherwise.
+  virtual bool WaitForTerminationWithTimeout(absl::Duration timeout) = 0;
 
   // Sets the executor for processing requests asynchronously.
   virtual void SetExecutor(std::unique_ptr<EventExecutor> executor) = 0;
 
  protected:
   HTTPClientInterface() = default;
+
 };
 
-}  // namespace net_http
-}  // namespace serving
-}  // namespace tensorflow
 
-#endif  // THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
+#endif  // TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
