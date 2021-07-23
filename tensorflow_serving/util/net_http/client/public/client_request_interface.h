@@ -44,10 +44,14 @@ class ClientRequestInterface {
   // The portion of the request URI after the host and port.
   // E.g. "/path/to/resource?param=value&param=value#fragment".
   // Doesn't unescape the contents; returns "/" at least.
+
+  virtual void SetUriPath(absl::string_view path) = 0;
   virtual absl::string_view uri_path() const = 0;
 
   // HTTP request method.
   // Must be in Upper Case.
+
+  virtual void SetHTTPMethod(absl::string_view method) = 0;
   virtual absl::string_view http_method() const = 0;
 
   virtual bool SetResponseHandler(const ClientResponseHandler& handler) = 0;

@@ -1,17 +1,4 @@
-/* Copyright 2018 Google Inc. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
+/*copyright stuff*/
 
 #ifndef TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_INTERNAL_EVHTTP_CONNECTION_H_
 #define TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_INTERNAL_EVHTTP_CONNECTION_H_
@@ -32,72 +19,43 @@ limitations under the License.
 #include "libevent/include/event2/keyvalq_struct.h"
 #include "libevent/include/event2/util.h"
 
-// TODO(wenboz): move EventExecutor to net_http/common
 #include "tensorflow_serving/util/net_http/client/public/httpclient_interface.h"
-#include "tensorflow_serving/util/net_http/server/public/httpserver_interface.h"
+#include "tensorflow_serving/util/net_http/client/public/client_request_interface.h"
 
-namespace tensorflow {
-namespace serving {
-namespace net_http {
-
-// The following types may be moved to an API interface in future.
-
-class EvHTTPConnection final : public HTTPClientInterface {
- public:
-  EvHTTPConnection() = default;
-
-  ~EvHTTPConnection() override;
+class EvHTTPConnection : public HTTPClientInterface {
+ ~HTTPClientInterface() = default;
 
   EvHTTPConnection(const EvHTTPConnection& other) = delete;
   EvHTTPConnection& operator=(const EvHTTPConnection& other) = delete;
 
-  // Terminates the connection.
+  EvHTTPConnection() = default;
+
+  bool Connect(absl::string_view host, int port) override;
+
+  bool Connect(absl::string_view uri) override;
+  
+  bool is_connected() const override;
+  
+  bool SendRequest(ClientRequestInterface& request, bool asynchronous) override;
+
+  // Starts the connection termination, and returns immediately.
   void Terminate() override;
 
-  // Returns a new connection given an absolute URL.
-  // Always treat the URL scheme as "http" for now.
-  // Returns nullptr if any error
-  static std::unique_ptr<EvHTTPConnection> Connect(absl::string_view url);
+  // Returns true if Terminate() has been called.
+  bool is_terminating() const override;
 
-  // Returns a new connection to the specified host:port.
-  // Returns nullptr if any error
-  static std::unique_ptr<EvHTTPConnection> Connect(absl::string_view host,
-                                                   int port);
+  // Blocks the calling thread until the client is terminated and safe
+  // to destroy.
+  void WaitForTermination() override;
 
-  // Returns a new connection to the specified port of localhost.
-  // Returns nullptr if any error
-  static std::unique_ptr<EvHTTPConnection> ConnectLocal(int port) {
-    return Connect("localhost", port);
-  }
-
-  // Sends a request and blocks the caller till a response is received
-  // or any error has happened.
-  // Returns false if any error.
-  bool BlockingSendRequest(const ClientRequest& request,
-                           ClientResponse* response) override;
-
-  // Sends a request and returns immediately. The response will be handled
-  // asynchronously via the response->done callback.
-  // Returns false if any error in sending the request, or if the executor
-  // has not been configured.
-  bool SendRequest(const ClientRequest& request,
-                   ClientResponse* response) override;
+  // Blocks the calling thread until the server is terminated and safe
+  // to destroy, or until the specified timeout elapses.  Returns true
+  // if safe termination completed within the timeout, and false otherwise.
+  bool WaitForTerminationWithTimeout(absl::Duration timeout) override;
 
   // Sets the executor for processing requests asynchronously.
   void SetExecutor(std::unique_ptr<EventExecutor> executor) override;
-
- private:
-  struct event_base* ev_base_;
-  struct evhttp_uri* http_uri_;
-  struct evhttp_connection* evcon_;
-
-  std::unique_ptr<EventExecutor> executor_;
-
-  std::unique_ptr<absl::Notification> loop_exit_;
 };
 
-}  // namespace net_http
-}  // namespace serving
-}  // namespace tensorflow
 
-#endif  // TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_EVHTTP_CONNECTION_H_
+#endif  // TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_INTERNAL_EVHTTP_CONNECTION_H_

@@ -16,7 +16,7 @@
 
 #include "tensorflow_serving/util/net_http/client/public/client_request_interface.h"
 
-
+//TODO: move EventExecutor to net_http/common
 class EventExecutor {
  public:
   virtual ~EventExecutor() = default;
