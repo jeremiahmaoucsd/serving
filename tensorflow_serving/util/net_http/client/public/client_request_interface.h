@@ -54,7 +54,7 @@ class ClientRequestInterface {
   virtual void SetHTTPMethod(absl::string_view method) = 0;
   virtual absl::string_view http_method() const = 0;
 
-  virtual bool SetResponseHandler(const ClientResponseHandler& handler) = 0;
+  virtual bool SetResponseHandler(const ClientResponseHandler* handler) = 0;
  
   // Appends the data block of the specified size to the request body.
   // This request object takes the ownership of the data block.
