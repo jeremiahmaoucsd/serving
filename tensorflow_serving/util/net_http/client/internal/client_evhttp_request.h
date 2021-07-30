@@ -83,6 +83,8 @@ class ClientEvHTTPRequest : public ClientRequestInterface {
     // Initializes the resource and returns false if any error.
     bool Initialize();
 
+    std::unique_ptr<ParsedEvResponse> GetParsedResponse();
+
   private:
 
     const ClientResponseHandler* response_handler_;

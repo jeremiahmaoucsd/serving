@@ -50,6 +50,10 @@ ClientEvHTTPRequest::ClientEvHTTPRequest(std::unique_ptr<ParsedEvRequest> reques
     : parsed_response_(std::move(request),
       response_handler_(nullptr)) {}
 
+ClientEvHTTPRequest::ClientEvHTTPRequest(const ClientResponseHandler* handler)
+    : parsed_response_(std::move(request),
+      response_handler_(nullptr)) {}
+      
 bool ClientEvHTTPRequest::SetResponseHandler(const ClientResponseHandler* handler){
   if(handler == nullptr){
     return false;
@@ -188,6 +192,11 @@ void ClientEvHTTPRequest::Abort() {
   evhttp_send_error(parsed_response_->request, HTTP_INTERNAL, nullptr);
   delete this;
 }
+
+std::unique_ptr<ParsedEvResponse> ClientEvHTTPRequest::GetParsedResponse(){
+  return parsed_response_;
+}
+
 
 }  // namespace net_http
 }  // namespace serving

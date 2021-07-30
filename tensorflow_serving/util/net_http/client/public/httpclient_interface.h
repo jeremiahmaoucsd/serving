@@ -45,7 +45,7 @@ class HTTPClientInterface {
   
   virtual bool is_connected() const = 0;
   
-  virtual bool SendRequest(ClientRequestInterface& request, bool asynchronous) = 0;
+  virtual bool SendRequest(ClientRequestInterface* request, bool asynchronous) = 0;
 
   // Starts the connection termination, and returns immediately.
   virtual void Terminate() = 0;
