@@ -13,12 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_H_
-#define THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_H_
+#ifndef THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_TEST_CLIENT_PUBLIC_HTTPCLIENT_H_
+#define THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_TEST_CLIENT_PUBLIC_HTTPCLIENT_H_
 
 #include "absl/memory/memory.h"
-#include "tensorflow_serving/util/net_http/client/internal/evhttp_connection.h"
-#include "tensorflow_serving/util/net_http/client/public/httpclient_interface.h"
+#include "tensorflow_serving/util/net_http/client/test_client/internal/evhttp_connection.h"
+#include "tensorflow_serving/util/net_http/client/test_client/public/httpclient_interface.h"
 
 // Factory to manage internal dependency
 // NOTE: This API is not yet finalized, and should in its current state be
@@ -30,9 +30,9 @@ namespace net_http {
 
 // Creates a connection to a server implemented based on the libevents library.
 // Returns nullptr if there is any error.
-inline std::unique_ptr<HTTPClientInterface> CreateEvHTTPConnection(
+inline std::unique_ptr<TestHTTPClientInterface> CreateEvHTTPConnection(
     absl::string_view host, int port) {
-  auto connection = absl::make_unique<EvHTTPConnection>();
+  auto connection = absl::make_unique<TestEvHTTPConnection>();
   connection = connection->Connect(host, port);
   if (!connection) {
     return nullptr;
@@ -45,4 +45,4 @@ inline std::unique_ptr<HTTPClientInterface> CreateEvHTTPConnection(
 }  // namespace serving
 }  // namespace tensorflow
 
-#endif  // THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_PUBLIC_HTTPCLIENT_H_
+#endif  // THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_TEST_CLIENT_PUBLIC_HTTPCLIENT_H_

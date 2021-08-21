@@ -18,22 +18,22 @@ limitations under the License.
 
 #include <iostream>
 
-#include "tensorflow_serving/util/net_http/client/internal/evhttp_connection.h"
+#include "tensorflow_serving/util/net_http/client/test_client/internal/evhttp_connection.h"
 
 namespace {
 
-using tensorflow::serving::net_http::ClientRequest;
-using tensorflow::serving::net_http::ClientResponse;
-using tensorflow::serving::net_http::EvHTTPConnection;
+using tensorflow::serving::net_http::TestClientRequest;
+using tensorflow::serving::net_http::TestClientResponse;
+using tensorflow::serving::net_http::TestEvHTTPConnection;
 
 bool SendRequest(const char* url) {
-  auto connection = EvHTTPConnection::Connect(url);
+  auto connection = TestEvHTTPConnection::Connect(url);
   if (connection == nullptr) {
     std::cerr << "Fail to connect to %s" << url;
   }
 
-  ClientRequest request = {url, "GET", {}, ""};
-  ClientResponse response = {};
+  TestClientRequest request = {url, "GET", {}, ""};
+  TestClientResponse response = {};
 
   if (!connection->BlockingSendRequest(request, &response)) {
     std::cerr << "Request failed.";
