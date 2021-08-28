@@ -25,7 +25,7 @@ limitations under the License.
 #include "tensorflow_serving/util/net_http/server/internal/evhttp_server.h"
 #include "tensorflow_serving/util/net_http/server/public/httpserver.h"
 #include "tensorflow_serving/util/net_http/server/public/httpserver_interface.h"
-#include "tensorflow_serving/util/net_http/server/public/response_code_enum.h"
+#include "tensorflow_serving/util/net_http/public/response_code_enum.h"
 #include "tensorflow_serving/util/net_http/server/public/server_request_interface.h"
 
 namespace tensorflow {
