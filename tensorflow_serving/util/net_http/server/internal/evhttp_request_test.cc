@@ -205,8 +205,8 @@ TEST_F(EvHTTPRequestTest, RequestHeaders) {
 
   TestClientRequest request = {"/ok",
                            "GET",
-                           {ClientRequest::HeaderKeyValue("H1", "v1"),
-                            ClientRequest::HeaderKeyValue("H2", "v2")},
+                           {TestClientRequest::HeaderKeyValue("H1", "v1"),
+                            TestClientRequest::HeaderKeyValue("H2", "v2")},
                            ""};
   TestClientResponse response = {};
 
