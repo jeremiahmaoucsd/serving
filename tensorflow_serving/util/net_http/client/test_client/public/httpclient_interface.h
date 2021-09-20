@@ -16,7 +16,7 @@ limitations under the License.
 #ifndef THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_TEST_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
 #define THIRD_PARTY_TENSORFLOW_SERVING_UTIL_NET_HTTP_CLIENT_TEST_CLIENT_PUBLIC_HTTPCLIENT_INTERFACE_H_
 
-#include "tensorflow_serving/util/net_http/public/httpserver_interface.h"
+#include "tensorflow_serving/util/net_http/serving/public/httpserver_interface.h"
 #include "tensorflow_serving/util/net_http/public/response_code_enum.h"
 
 // API for the HTTP Client
