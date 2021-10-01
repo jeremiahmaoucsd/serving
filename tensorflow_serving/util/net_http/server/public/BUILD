@@ -21,7 +21,7 @@ cc_library(
     deps = [
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/time",
-        "//tensorflow_serving/util/net_http/public:shared_files"
+        "//tensorflow_serving/util/net_http/public:shared_files",
     ],
 )
 

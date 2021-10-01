@@ -40,7 +40,7 @@ namespace serving {
 namespace net_http {
 
 class ServerRequestInterface {
-
+ public:
   // To be used with memory blocks returned via std::unique_ptr<char[]>
   struct BlockDeleter {
    public:
@@ -55,7 +55,6 @@ class ServerRequestInterface {
     int64_t size_;
   };
 
- public:
   virtual ~ServerRequestInterface() = default;
 
   ServerRequestInterface(const ServerRequestInterface& other) = delete;
@@ -99,7 +98,7 @@ class ServerRequestInterface {
   //
   // Note this is not a streaming read API in that the complete request body
   // should have already been received.
-  virtual std::unique_ptr<char[], BlockDeleter> ReadRequestBytes(
+  virtual std::unique_ptr<char[], ServerRequestInterface::BlockDeleter> ReadRequestBytes(
       int64_t* size) = 0;
 
   // Returns the first value, including "", associated with a request
