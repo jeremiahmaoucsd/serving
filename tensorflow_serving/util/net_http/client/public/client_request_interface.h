@@ -38,6 +38,20 @@ namespace net_http {
 
 class ClientRequestInterface {
  public:
+  // To be used with memory blocks returned via std::unique_ptr<char[]>
+  struct BlockDeleter {
+   public:
+    BlockDeleter() : size_(0) {}  // nullptr
+    explicit BlockDeleter(int64_t size) : size_(size) {}
+    inline void operator()(char* ptr) const {
+      // TODO: c++14 ::operator delete[](ptr, size_t)
+      std::allocator<char>().deallocate(ptr, static_cast<std::size_t>(size_));
+    }
+
+   private:
+    int64_t size_;
+  };
+
   virtual ~ClientRequestInterface() = default;
 
   ClientRequestInterface(const ClientRequestInterface& other) = delete;
@@ -49,7 +63,7 @@ class ClientRequestInterface {
   // Doesn't unescape the contents; returns "/" at least.
 
   virtual void SetUriPath(absl::string_view path) = 0; //new setter for uri, does not exist in serverreq
-  virtual absl::string_view uri_path() const = 0; //brought over from server request
+  virtual absl::string_view uri_path() const = 0; //brought over from serverreq
 
   // HTTP request method.
   // Must be in Upper Case.
@@ -67,7 +81,7 @@ class ClientRequestInterface {
   // the response body.
   virtual void WriteRequestString(absl::string_view data) = 0; //from serverreq
   
-  virtual std::unique_ptr<char[], BlockDeleter> ReadResponseBytes( //from serverreq
+  virtual std::unique_ptr<char[], ClientRequestInterface::BlockDeleter> ReadResponseBytes( //from serverreq
       int64_t* size) = 0;
 
   virtual absl::string_view GetResponseHeader( //from serverreq

@@ -18,20 +18,30 @@
 
 //Everything in this API is heavily experimental and subject to change.
 
-//TODO: move EventExecutor to net_http/common
-class EventExecutor {
- public:
-  virtual ~EventExecutor() = default;
+class ClientOptions{ //to mirror ServerOptions, though other than the event executor I am not sure what to add here.
+ public: 
+  class EventExecutor {
+   public:
+    virtual ~EventExecutor() = default;
 
-  EventExecutor(const EventExecutor& other) = delete;
-  EventExecutor& operator=(const EventExecutor& other) = delete;
+    EventExecutor(const EventExecutor& other) = delete;
+    EventExecutor& operator=(const EventExecutor& other) = delete;
 
-  // Schedule the specified 'fn' for execution in this executor.
-  // Must be non-blocking
-  virtual void Schedule(std::function<void()> fn) = 0;
+    // Schedule the specified 'fn' for execution in this executor.
+    // Must be non-blocking
+    virtual void Schedule(std::function<void()> fn) = 0;
 
- protected:
-  EventExecutor() = default;
+   protected:
+    EventExecutor() = default;
+  };
+
+  void SetExecutor(std::unique_ptr<ClientOptions::EventExecutor> executor) {
+    executor_ = std::move(executor);
+  }
+  ClientOptions::EventExecutor* executor() const { return executor_.get(); }
+
+ private:
+  std::unique_ptr<ClientOptions::EventExecutor> executor_;
 };
 
 class HTTPClientInterface {
@@ -46,7 +56,7 @@ class HTTPClientInterface {
   virtual std::unique_ptr<ClientRequestInterface> MakeRequest(absl::string_view uri, absl::string_view method) = 0;
   
   virtual bool SendRequest(ClientRequestInterface* request) = 0; //There is currently a Send() method in the request class
-                                                                //so maybe unnecessary???
+                                                                //so maybe repetitive?
 
   // Closes connection
   virtual void CloseConnection() = 0;
