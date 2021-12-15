@@ -16,7 +16,7 @@
 
 #include "tensorflow_serving/util/net_http/client/public/client_request_interface.h"
 
-//Everything in this API is heavily experimental and subject to change.
+//Everything in this API is experimental and subject to change.
 
 class ClientOptions{ //to mirror ServerOptions, though other than the event executor I am not sure what to add here.
  public: 

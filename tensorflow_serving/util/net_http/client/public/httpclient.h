@@ -19,7 +19,8 @@ namespace net_http {
 // Creates a client implemented based on the libevents library.
 // Returns nullptr if there is any error
 
-inline std::unique_ptr<HTTPClientInterface> CreateEvHTTPClient() {
+inline std::unique_ptr<HTTPClientInterface> CreateEvHTTPClient(
+    std::unique_ptr<ClientOptions> options) {
   auto client = absl::make_unique<EvHTTPClient>(std::move(options));
   return std::move(client);
 }
